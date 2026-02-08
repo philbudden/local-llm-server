@@ -90,14 +90,18 @@ Verify installation:
 ```bash
 ansible --version
 yamllint --version
-SSH connectivity: ssh user@host -vvv
+```
+
+Test SSH connectivity:
+
+```bash
+ssh user@host -vvv
 ```
 
 Output should show Ansible 2.13+:
 ```
 ansible [core 2.13.x] ...
 ```
-
 ---
 
 For setup and usage, see [docs/SETUP.md](SETUP.md).

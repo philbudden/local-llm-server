@@ -144,11 +144,13 @@ All automation follows these principles (see AGENTS.md):
 ### Permission Denied (sudo)
 - Ensure the automation user is in sudoers: `sudo visudo`
 - For **least-privilege access**, configure only the specific commands needed by the playbooks
-- Example with restricted commands:
+- Example with restricted commands (covers both Intel and Apple Silicon Macs):
   ```
   automation ALL=(ALL) NOPASSWD: /usr/local/bin/brew *
+  automation ALL=(ALL) NOPASSWD: /opt/homebrew/bin/brew *
   automation ALL=(ALL) NOPASSWD: /usr/bin/launchctl *
   ```
+  - **Note:** Homebrew is installed at `/usr/local/bin/brew` on Intel Macs and `/opt/homebrew/bin/brew` on Apple Silicon; include both paths
 - For **unrestricted access** (development/test only), use: `automation ALL=(ALL) NOPASSWD: ALL`
 - Test your sudoers entry carefully with `visudo` before logging out
 

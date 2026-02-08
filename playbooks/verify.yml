@@ -10,6 +10,9 @@
     ansible_connection: ssh
 
   tasks:
+    - name: "Verify SSH connectivity with ping"
+      ansible.builtin.ping:
+
     - name: "Display Ansible version"
       debug:
         msg: "Ansible version: {{ ansible_version.full }}"
@@ -45,9 +48,6 @@
       fail:
         msg: "Data directory does not exist at {{ local_llm_data_dir }}. Please create it manually."
       when: not data_dir_stat.stat.exists
-
-    - name: "Verify SSH connectivity with ping"
-      ansible.builtin.ping:
 
     - name: "Display configured modes and safety switches"
       debug:

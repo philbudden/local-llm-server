@@ -180,8 +180,8 @@ All Ansible tasks follow idempotency principles:
 
 Variables are resolved in order of precedence (later definitions override earlier ones):
 
-1. Global defaults (`group_vars/all.yml`) — lowest precedence
-2. Role defaults (`roles/<role>/defaults/main.yml`) — not created initially
+1. Role defaults (`roles/<role>/defaults/main.yml`) — lowest precedence
+2. Global defaults (`group_vars/all.yml`)
 3. Group variables (`group_vars/<group>.yml`)
 4. Host-specific variables (`host_vars/<hostname>.yml`) — not used initially
 5. Command-line extra variables (`-e`) — highest precedence
