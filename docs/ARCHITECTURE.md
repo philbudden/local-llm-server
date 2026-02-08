@@ -132,11 +132,19 @@ All Ansible tasks follow idempotency principles:
 3. **Changed tracking** — explicit `changed_when:` clauses
 4. **Determinism** — no random or "latest" by default
 
-Example:
+**Security Note:** For production deployments, avoid `curl | sh` patterns. Use a safer approach:
 ```yaml
+- name: Download Ollama installer
+  ansible.builtin.get_url:
+    url: https://ollama.ai/install.sh
+    dest: /tmp/ollama_install.sh
+    mode: '0755'
+    checksum: sha256:<expected-hash>  # Verify checksum from release
+  args:
+    creates: /tmp/ollama_install.sh
+
 - name: Install Ollama (if not present)
-  shell: |
-    curl https://ollama.ai/install.sh | sh
+  shell: /tmp/ollama_install.sh
   args:
     creates: /usr/local/bin/ollama
   when: ollama_version != "skip"
@@ -170,13 +178,15 @@ Example:
 
 ## Configuration Hierarchy
 
-Variables are resolved in this order (first match wins):
+Variables are resolved in order of precedence (later definitions override earlier ones):
 
-1. Command-line extra variables (`-e`)
-2. Host-specific variables (`host_vars/<hostname>.yml`) — not used initially
+1. Global defaults (`group_vars/all.yml`) — lowest precedence
+2. Role defaults (`roles/<role>/defaults/main.yml`) — not created initially
 3. Group variables (`group_vars/<group>.yml`)
-4. Role defaults (`roles/<role>/defaults/main.yml`) — not created initially
-5. Global defaults (`group_vars/all.yml`)
+4. Host-specific variables (`host_vars/<hostname>.yml`) — not used initially
+5. Command-line extra variables (`-e`) — highest precedence
+
+See [Ansible variable precedence documentation](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable) for the complete precedence order.
 
 ## Data Persistence
 

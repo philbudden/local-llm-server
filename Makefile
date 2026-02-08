@@ -1,4 +1,4 @@
-.PHONY: help lint check verify provision dry-run upgrade clean
+.PHONY: help lint check verify provision dry-run provision-upgrade clean
 
 # Default target
 help:
@@ -15,9 +15,9 @@ help:
 # Linting targets
 lint:
 	@echo "Running ansible-lint..."
-	ansible-lint playbooks/ roles/ || true
+	ansible-lint playbooks/ roles/
 	@echo "Running yamllint..."
-	yamllint . || true
+	yamllint .
 
 # Check mode (dry-run) - safe, no changes
 check:
@@ -45,7 +45,7 @@ provision-upgrade:
 clean:
 	@echo "Cleaning Ansible cache and local state..."
 	rm -rf .ansible/
-	rm -rf /tmp/ansible_facts_cache/
+	rm -rf .ansible_facts_cache/
 	find . -name "*.pyc" -delete
 	find . -name "__pycache__" -type d -delete
 	@echo "Clean complete"

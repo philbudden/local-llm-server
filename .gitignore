@@ -14,11 +14,15 @@ host_vars/*.secret.yml
 /tmp/ansible_facts_cache/
 .ansible_facts_cache/
 
-# SSH keys and credentials
+# SSH keys and credentials (private keys only)
 *.pem
 *.key
-*.pub
-~/.ssh/
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+*.ppk
+.ssh/
 
 # Python/venv
 __pycache__/
@@ -35,14 +39,12 @@ env/
 *.swo
 *~
 .DS_Store
-.env.local
 
 # Lint output
 .yamllint
 ansible-lint-report
 
 # OS
-.DS_Store
 Thumbs.db
 
 # Logs

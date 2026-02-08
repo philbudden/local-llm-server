@@ -120,10 +120,14 @@ Before any upgrade:
    ```
 
 **Rollback:**
-- Reinstall previous versions:
+- Reinstall previous versions (note: `@version` syntax only works for formulae providing versioned names):
   ```bash
-  brew install <package>@<version>
+  brew install <package>@<version>  # e.g., python@3.9
   ```
+- For most packages without version-specific formulas, use:
+  - `brew extract <package> <version> --tap <username>/local` to create a versioned formula
+  - Or downgrade from a different tap or bottle
+  - Or use Docker/virtualenv for version-pinned environments
 
 ### OpenWebUI Container Image Upgrade
 
@@ -191,7 +195,7 @@ ssh <user>@<host> "ollama list"
 2. **Logs:** Check application logs:
    ```bash
    ssh <user>@<host> "docker logs openwebui"
-   ssh <user>@<host> "docker logs ollama" (if containerized)
+   ssh <user>@<host> "log show --predicate 'subsystem == \"ollama\"' --last 1h"  # macOS native service
    ```
 3. **Model functionality:** Test model inference:
    ```bash
@@ -233,4 +237,4 @@ Track known issues and mitigation:
 ---
 
 For principles and governance, see [AGENTS.md](../AGENTS.md).
-For operational overview, see [docs/SETUP.md](../docs/SETUP.md).
+For operational overview, see [SETUP.md](SETUP.md).

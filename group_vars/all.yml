@@ -42,13 +42,13 @@ ollama_models_prune: false
 # Update these deliberately; don't use "latest" by default
 
 # Ollama version to install
-ollama_version: "0.3.0"  # Should match release tag
+ollama_version: "0.15.6"  # Latest stable; verify at https://github.com/ollama/ollama/releases
 
-# Docker Desktop version (macOS specific; check available versions)
-docker_desktop_version: "27.0.0"
+# Docker Desktop version (macOS specific; verify available versions at docker.com)
+docker_desktop_version: "4.59.1"
 
-# OpenWebUI container image tag (pinned for reproducibility)
-openwebui_image_tag: "main"  # or specific digest for maximum reproducibility
+# OpenWebUI container image tag (pinned for reproducibility; use version tag or digest)
+openwebui_image_tag: "main-latest"
 
 
 # ============================================================================

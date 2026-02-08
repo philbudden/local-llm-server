@@ -20,9 +20,8 @@ rules:
   # Allow use of shell module where appropriate
   risky-shell-task: disable
   
-  # Allow dangerous tasks when creating infrastructure
-  run-once:
-    loop-var-prefix: []
+  # Configure loop variable prefix rule
+  loop-var-prefix: []
 
 # Verbosity level (higher = more output)
 verbosity: 1

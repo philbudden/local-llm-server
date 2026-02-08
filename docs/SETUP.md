@@ -1,4 +1,4 @@
--# Setup and Operational Guide
+# Setup and Operational Guide
 
 This document describes how to set up the Ansible provisioning environment and connect to the target Mac mini.
 
@@ -143,7 +143,14 @@ All automation follows these principles (see AGENTS.md):
 
 ### Permission Denied (sudo)
 - Ensure the automation user is in sudoers: `sudo visudo`
-- Add: `automation ALL=(ALL) NOPASSWD: ALL` (or restrict commands as needed)
+- For **least-privilege access**, configure only the specific commands needed by the playbooks
+- Example with restricted commands:
+  ```
+  automation ALL=(ALL) NOPASSWD: /usr/local/bin/brew *
+  automation ALL=(ALL) NOPASSWD: /usr/bin/launchctl *
+  ```
+- For **unrestricted access** (development/test only), use: `automation ALL=(ALL) NOPASSWD: ALL`
+- Test your sudoers entry carefully with `visudo` before logging out
 
 ### Data Directory Errors
 - Create `/opt/local-llm` manually if not present
@@ -164,5 +171,5 @@ All automation follows these principles (see AGENTS.md):
 
 - [AGENTS.md](../AGENTS.md) — Project architecture and guardrails
 - [Ansible Documentation](https://docs.ansible.com/)
-- [Ollama Documentation](https://ollama.ai/)
+- [Ollama Documentation](https://docs.ollama.com/)
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
