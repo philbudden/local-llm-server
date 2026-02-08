@@ -102,6 +102,11 @@ Also verify yamllint:
 yamllint --version
 ```
 
+Expected output:
+```
+yamllint 1.26.0 ...
+```
+
 Test SSH connectivity:
 
 ```bash
