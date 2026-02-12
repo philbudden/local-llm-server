@@ -1,4 +1,4 @@
-# local-llm-server
+# Local LLM Server
 
 This repository provisions a **dedicated Mac mini** as a **stable, reproducible local LLM host**.
 
