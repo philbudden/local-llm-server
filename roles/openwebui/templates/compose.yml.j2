@@ -9,7 +9,7 @@ services:
     container_name: {{ openwebui_container_name }}
     restart: unless-stopped
     ports:
-      - "{{ openwebui_api_host }}:{{ openwebui_api_port }}:8080"
+      - "{{ openwebui_bind_host }}:{{ openwebui_api_port }}:8080"
     volumes:
       - {{ openwebui_data_dir }}:/app/backend/data
     environment:

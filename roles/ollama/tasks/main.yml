@@ -60,13 +60,36 @@
     - ollama_version_output is not skipped
     - ollama_version_output.stdout is defined
 
-- name: "Start Ollama service"
-  ansible.builtin.command: "{{ homebrew_prefix }}/bin/brew services start ollama"
-  args:
-    creates: "{{ ansible_env.HOME }}/Library/LaunchAgents/homebrew.mxcl.ollama.plist"
+- name: "Ensure LaunchAgents directory exists"
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/Library/LaunchAgents"
+    state: directory
+    mode: "0755"
   when: ansible_system == "Darwin"
-  register: ollama_service_start
-  changed_when: ollama_service_start.rc == 0
+
+- name: "Configure Ollama launchd plist (bind address)"
+  ansible.builtin.template:
+    src: homebrew.mxcl.ollama.plist.j2
+    dest: "{{ ansible_env.HOME }}/Library/LaunchAgents/homebrew.mxcl.ollama.plist"
+    mode: "0644"
+  notify: "Restart Ollama service"
+  when: ansible_system == "Darwin"
+
+- name: "Check if Ollama launchd service is loaded"
+  ansible.builtin.command: "launchctl list homebrew.mxcl.ollama"
+  register: ollama_svc_check
+  changed_when: false
+  failed_when: false
+  when: ansible_system == "Darwin"
+
+- name: "Load Ollama launchd service if not already running"
+  ansible.builtin.command: >-
+    launchctl load -w
+    {{ ansible_env.HOME }}/Library/LaunchAgents/homebrew.mxcl.ollama.plist
+  when:
+    - ansible_system == "Darwin"
+    - ollama_svc_check.rc != 0
+  changed_when: true
 
 - name: "Wait for Ollama API to be available"
   ansible.builtin.uri:
@@ -88,3 +111,23 @@
     - ansible_system == "Darwin"
     - ollama_health is defined
     - ollama_health is not skipped
+
+- name: "Verify Ollama is listening on all interfaces"
+  ansible.builtin.command: "lsof -nP -iTCP:{{ ollama_api_port }} -sTCP:LISTEN"
+  register: ollama_listen_check
+  changed_when: false
+  failed_when: false
+  when: ansible_system == "Darwin"
+
+- name: "Assert Ollama is bound to 0.0.0.0:{{ ollama_api_port }}"
+  ansible.builtin.assert:
+    that:
+      - ollama_listen_check.rc == 0
+      - "'*:' + (ollama_api_port | string) in ollama_listen_check.stdout"
+    fail_msg: >-
+      Ollama is not listening on all interfaces (0.0.0.0:{{ ollama_api_port }}).
+      Check {{ ansible_env.HOME }}/Library/LaunchAgents/homebrew.mxcl.ollama.plist
+      and confirm OLLAMA_HOST={{ ollama_host_bind }}:{{ ollama_api_port }} is set.
+      lsof output: {{ ollama_listen_check.stdout | default('(empty)') }}
+    success_msg: "Ollama is bound to 0.0.0.0:{{ ollama_api_port }} (reachable over Tailscale)"
+  when: ansible_system == "Darwin"

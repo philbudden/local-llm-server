@@ -31,27 +31,19 @@
     mode: '0755'
   when: ansible_system == "Darwin"
 
-- name: "Copy Docker Compose file for OpenWebUI"
+- name: "Deploy Docker Compose file for OpenWebUI"
   ansible.builtin.template:
     src: compose.yml.j2
     dest: "{{ openwebui_compose_dir }}/compose.yml"
-    mode: '0644'
+    mode: "0644"
   when: ansible_system == "Darwin"
 
-- name: "Check if .env file exists"
-  ansible.builtin.stat:
-    path: "{{ openwebui_compose_dir }}/.env"
-  register: env_file_stat
-  when: ansible_system == "Darwin"
-
-- name: "Create .env file from template if missing"
+- name: "Deploy .env file for OpenWebUI (always managed by Ansible)"
   ansible.builtin.template:
     src: env.j2
     dest: "{{ openwebui_compose_dir }}/.env"
-    mode: '0600'
-  when:
-    - ansible_system == "Darwin"
-    - not env_file_stat.stat.exists
+    mode: "0600"
+  when: ansible_system == "Darwin"
 
 - name: "Pull OpenWebUI container image (if upgrade enabled)"
   ansible.builtin.command: "/usr/local/bin/docker pull ghcr.io/open-webui/open-webui:{{ openwebui_image_tag }}"
@@ -70,7 +62,10 @@
     PATH: "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/Docker.app/Contents/Resources/bin"
   when: ansible_system == "Darwin"
   register: compose_result
-  changed_when: "'Started' in compose_result.stderr or 'Created' in compose_result.stderr"
+  changed_when: >-
+    'Started' in compose_result.stderr or
+    'Created' in compose_result.stderr or
+    'Recreated' in compose_result.stderr
   failed_when: false
 
 - name: "Check for Docker file sharing error"
@@ -122,3 +117,23 @@
     - ansible_system == "Darwin"
     - openwebui_health is defined
     - openwebui_health is not skipped
+
+- name: "Verify OpenWebUI is listening on all interfaces"
+  ansible.builtin.command: "lsof -nP -iTCP:{{ openwebui_api_port }} -sTCP:LISTEN"
+  register: openwebui_listen_check
+  changed_when: false
+  failed_when: false
+  when: ansible_system == "Darwin"
+
+- name: "Assert OpenWebUI is bound to 0.0.0.0:{{ openwebui_api_port }}"
+  ansible.builtin.assert:
+    that:
+      - openwebui_listen_check.rc == 0
+      - "'*:' + (openwebui_api_port | string) in openwebui_listen_check.stdout"
+    fail_msg: >-
+      OpenWebUI is not listening on all interfaces (0.0.0.0:{{ openwebui_api_port }}).
+      Check {{ openwebui_compose_dir }}/compose.yml and confirm the port binding is
+      {{ openwebui_bind_host }}:{{ openwebui_api_port }}:8080.
+      lsof output: {{ openwebui_listen_check.stdout | default('(empty)') }}
+    success_msg: "OpenWebUI is bound to 0.0.0.0:{{ openwebui_api_port }} (reachable over Tailscale)"
+  when: ansible_system == "Darwin"

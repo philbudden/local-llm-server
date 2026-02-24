@@ -1,1 +1,19 @@
 ---
+# Handlers fired only when Ollama's launchd plist changes
+
+- name: "Unload Ollama launchd service"
+  ansible.builtin.command: >-
+    launchctl unload
+    {{ ansible_env.HOME }}/Library/LaunchAgents/homebrew.mxcl.ollama.plist
+  listen: "Restart Ollama service"
+  failed_when: false
+  changed_when: true
+  when: ansible_system == "Darwin"
+
+- name: "Load Ollama launchd service"
+  ansible.builtin.command: >-
+    launchctl load -w
+    {{ ansible_env.HOME }}/Library/LaunchAgents/homebrew.mxcl.ollama.plist
+  listen: "Restart Ollama service"
+  changed_when: true
+  when: ansible_system == "Darwin"

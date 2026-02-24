@@ -55,9 +55,16 @@ openwebui_image_tag: "v0.7.2"  # Specific release; use version tags for reproduc
 # Ollama configuration
 # ============================================================================
 
-# Ollama service should listen on localhost only by default
+# Ollama service bind address (0.0.0.0 = all interfaces, including Tailscale)
+ollama_host_bind: "0.0.0.0"
+
+# Ollama API host used for local health checks (loopback is always reachable)
 ollama_api_host: "127.0.0.1"
 ollama_api_port: 11434
+
+# URL used by Docker containers to reach Ollama on the macOS host
+# host.docker.internal is Docker Desktop's special hostname for the host machine
+ollama_container_url: "http://host.docker.internal:{{ ollama_api_port }}"
 
 # Health check timeout (seconds)
 ollama_health_check_timeout: 30
@@ -67,7 +74,10 @@ ollama_health_check_timeout: 30
 # OpenWebUI configuration
 # ============================================================================
 
-# OpenWebUI service should listen on localhost only by default
+# OpenWebUI Docker port bind address (0.0.0.0 = all interfaces, including Tailscale)
+openwebui_bind_host: "0.0.0.0"
+
+# OpenWebUI API host used for local health checks (loopback is always reachable)
 openwebui_api_host: "127.0.0.1"
 openwebui_api_port: 3000
 
