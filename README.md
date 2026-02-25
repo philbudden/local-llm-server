@@ -1,4 +1,4 @@
-# Anchor
+# Anchor AI
 
 ## Stable base for everything AI locally
 
